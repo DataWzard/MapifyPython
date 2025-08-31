@@ -5,8 +5,7 @@ Streamlit app for MapifyPython — paste code → visual map (Graph + JSON Tree 
 Usage
 -----
 1) pip install streamlit networkx pyvis
-2) Place this file somewhere, and (optionally) download jsontr.ee.js into the same folder
-   from https://github.com/DataWzard/MapifyJSON (file: jsontr.ee.js)
+2) Place this file somewhere
 3) streamlit run mapify_app.py
 4) Paste one or more Python files (optionally name them), choose edges, and view the graph or JSON tree.
 
