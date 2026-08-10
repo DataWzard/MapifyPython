@@ -1,0 +1,15 @@
+[project]
+name = "mapifypython"
+version = "0.1.0"
+description = "Static Python execution-flow visualizer"
+requires-python = ">=3.10"
+
+[project.scripts]
+mapifypython = "mapify:_cli"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["mapify"]
