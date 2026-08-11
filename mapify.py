@@ -143,6 +143,115 @@ class ModuleMap:
     assignments: List[AssignmentMap] = field(default_factory=list)
 
 
+@dataclass
+class FlowNode:
+    """A statement or branch in the static execution-flow tree."""
+    id: str
+    kind: str
+    label: str
+    location: Dict[str, Optional[int]]
+    execution: str = "immediate"
+    children: List["FlowNode"] = field(default_factory=list)
+
+
+class FlowBuilder:
+    """Build an ordered control-flow tree without executing the source."""
+
+    def __init__(self) -> None:
+        self._counter = 0
+
+    def _node(
+        self,
+        kind: str,
+        label: str,
+        source: ast.AST,
+        *,
+        execution: str = "immediate",
+        children: Iterable[FlowNode] = (),
+    ) -> FlowNode:
+        node = FlowNode(
+            id=f"flow-{self._counter}",
+            kind=kind,
+            label=label,
+            location=_loc(source),
+            execution=execution,
+            children=list(children),
+        )
+        self._counter += 1
+        return node
+
+    def _block(self, statements: List[ast.stmt], execution: str) -> List[FlowNode]:
+        return [self._statement(statement, execution) for statement in statements]
+
+    def _branch(self, label: str, statements: List[ast.stmt], source: ast.AST, execution: str) -> FlowNode:
+        return self._node("branch", label, source, execution=execution, children=self._block(statements, execution))
+
+    def build(self, tree: ast.Module, filename: str) -> FlowNode:
+        return self._node("module", f"Module {Path(filename).name}", tree, children=self._block(tree.body, "immediate"))
+
+    def _statement(self, statement: ast.stmt, execution: str) -> FlowNode:
+        if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            prefix = "async function" if isinstance(statement, ast.AsyncFunctionDef) else "function"
+            body = self._branch("body (when called)", statement.body, statement, "deferred")
+            return self._node("function", f"Define {prefix} {statement.name}", statement, execution=execution, children=[body])
+        if isinstance(statement, ast.ClassDef):
+            body = self._branch("class body", statement.body, statement, execution)
+            return self._node("class", f"Define class {statement.name}", statement, execution=execution, children=[body])
+        if isinstance(statement, ast.If):
+            children = [self._branch("true", statement.body, statement, execution)]
+            if statement.orelse:
+                children.append(self._branch("false / elif", statement.orelse, statement, execution))
+            return self._node("condition", f"If {_expr_to_str(statement.test)}", statement, execution=execution, children=children)
+        if isinstance(statement, (ast.For, ast.AsyncFor)):
+            children = [self._branch("each iteration", statement.body, statement, execution)]
+            if statement.orelse:
+                children.append(self._branch("loop completed", statement.orelse, statement, execution))
+            return self._node("loop", f"For {_expr_to_str(statement.target)} in {_expr_to_str(statement.iter)}", statement, execution=execution, children=children)
+        if isinstance(statement, ast.While):
+            children = [self._branch("while true", statement.body, statement, execution)]
+            if statement.orelse:
+                children.append(self._branch("loop completed", statement.orelse, statement, execution))
+            return self._node("loop", f"While {_expr_to_str(statement.test)}", statement, execution=execution, children=children)
+        if isinstance(statement, ast.Try):
+            children = [self._branch("try", statement.body, statement, execution)]
+            for handler in statement.handlers:
+                children.append(self._branch(f"except {_expr_to_str(handler.type) or 'Exception'}", handler.body, handler, execution))
+            if statement.orelse:
+                children.append(self._branch("else", statement.orelse, statement, execution))
+            if statement.finalbody:
+                children.append(self._branch("finally", statement.finalbody, statement, execution))
+            return self._node("try", "Try / except", statement, execution=execution, children=children)
+        if isinstance(statement, (ast.With, ast.AsyncWith)):
+            contexts = ", ".join(_expr_to_str(item.context_expr) or "context" for item in statement.items)
+            return self._node("with", f"With {contexts}", statement, execution=execution, children=self._block(statement.body, execution))
+        if isinstance(statement, ast.Match):
+            cases = []
+            for case in statement.cases:
+                label = f"case {_expr_to_str(case.pattern)}"
+                if case.guard:
+                    label += f" if {_expr_to_str(case.guard)}"
+                cases.append(self._branch(label, case.body, case.pattern, execution))
+            return self._node("condition", f"Match {_expr_to_str(statement.subject)}", statement, execution=execution, children=cases)
+
+        kind = "statement"
+        if isinstance(statement, (ast.Import, ast.ImportFrom)):
+            kind = "import"
+        elif isinstance(statement, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
+            kind = "assignment"
+        elif isinstance(statement, ast.Expr):
+            kind = "call" if isinstance(statement.value, ast.Call) else "expression"
+        elif isinstance(statement, ast.Return):
+            kind = "return"
+        elif isinstance(statement, ast.Raise):
+            kind = "raise"
+        elif isinstance(statement, (ast.Break, ast.Continue)):
+            kind = "jump"
+        label = (_expr_to_str(statement) or statement.__class__.__name__).replace("\n", " ")
+        if len(label) > 110:
+            label = label[:109] + "…"
+        return self._node(kind, label, statement, execution=execution)
+
+
 # ---------------------------
 # Core visitor
 # ---------------------------
@@ -313,6 +422,22 @@ class Mapify(ast.NodeVisitor):
 # ---------------------------
 # Public API
 # ---------------------------
+
+def analyze_python_source(source: str, filename: str = "snippet.py") -> Dict[str, Any]:
+    """Return both the structure catalog and hierarchical execution flow."""
+    tree = ast.parse(source, filename=filename, type_comments=True)
+    module_map = Mapify(filename, module_name=Path(filename).stem).build(tree)
+    flow = FlowBuilder().build(tree, filename)
+    return {
+        "schema_version": 1,
+        "source": filename,
+        "catalog": asdict(module_map),
+        "flow": asdict(flow),
+    }
+
+
+def map_analysis_to_json(analysis: Dict[str, Any], *, indent: Optional[int] = None) -> str:
+    return json.dumps(analysis, indent=indent, ensure_ascii=False)
 
 def map_python_file(path: Union[str, Path]) -> ModuleMap:
     src = Path(path).read_text(encoding="utf-8")

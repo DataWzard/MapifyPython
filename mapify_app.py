@@ -354,8 +354,7 @@ if parse_btn and file_entries:
             errors.append(f"{fname}: SyntaxError: {e}")
 
     if errors:
-        st.error("
-".join(errors))
+        st.error("\n".join(errors))
 
 with tab_graph:
     st.subheader("Graph")
