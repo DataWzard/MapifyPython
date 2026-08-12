@@ -63,7 +63,31 @@ print(f"Average: {average:.1f} — {label}")</textarea>
     const PYODIDE_URL="https://cdn.jsdelivr.net/pyodide/v314.0.2/full/";
     const $=id=>document.getElementById(id);let runtime=null,data=null,currentView="graph",rendered={graph:false,tree:false};
     const viewState={graph:null,tree:null};
-    const code=$("code"),mapButton=$("map"),status=$("status"),dot=$("dot"),errorBox=$("error"),sampleSource=code.value.trim();
+    const code=$("code"),mapButton=$("map"),status=$("status"),dot=$("dot"),errorBox=$("error");
+    const SAMPLE_SOURCE=`import statistics
+
+class ScoreReport:
+    """Summarize a collection of scores."""
+
+    def __init__(self, scores: list[float]):
+        self.scores = scores
+
+    def average(self) -> float:
+        return statistics.mean(self.scores)
+
+def performance_label(average: float) -> str:
+    """Turn a numeric average into a readable label."""
+    if average >= 90:
+        return "excellent"
+    if average >= 70:
+        return "passing"
+    return "needs improvement"
+
+report = ScoreReport([88, 94, 91, 85])
+average = report.average()
+label = performance_label(average)
+print(f"Average: {average:.1f} — {label}")`;
+    code.value=SAMPLE_SOURCE;
     function setStatus(message,state=""){status.textContent=message;dot.className=`dot ${state}`}
     function showError(error){errorBox.style.display="block";errorBox.textContent=String(error?.message||error);document.querySelectorAll(".view").forEach(v=>v.style.display="none");$("legend").style.display="none"}
     function clearError(){errorBox.style.display="none";document.querySelectorAll(".view").forEach(v=>v.style.display="");switchView(currentView)}
@@ -87,7 +111,7 @@ print(f"Average: {average:.1f} — {label}")</textarea>
     async function toggleFullscreen(){const viewer=document.querySelector(".viewer");if(!document.fullscreenElement)await viewer.requestFullscreen();else await document.exitFullscreen()}
     document.addEventListener("fullscreenchange",()=>{$("fullscreen").textContent=document.fullscreenElement?"Exit full screen":"Full screen";if(data&&currentView!=="json")setTimeout(()=>{if(currentView==="tree")updateTree(false);else{rendered.graph=false;switchView("graph")}},100)});
     $("zoom-out").addEventListener("click",()=>zoomView(.8));$("zoom-in").addEventListener("click",()=>zoomView(1.25));$("fit-view").addEventListener("click",()=>fitView(currentView));$("collapse-tree").addEventListener("click",rollUpTree);$("fullscreen").addEventListener("click",toggleFullscreen);$("export-svg").addEventListener("click",exportSvg);$("export-png").addEventListener("click",exportPng);
-    document.querySelectorAll(".tab").forEach(button=>button.addEventListener("click",()=>switchView(button.dataset.view)));mapButton.addEventListener("click",analyze);$("file").addEventListener("change",async e=>{const file=e.target.files[0];if(file){code.value=await file.text();$("filename").textContent=file.name;setStatus("File loaded — ready to map","ready")}});$("sample").addEventListener("click",()=>{code.value=sampleSource;$("filename").textContent="sample.py"});code.addEventListener("keydown",event=>{if((event.ctrlKey||event.metaKey)&&event.key==="Enter")analyze();if(event.key==="Tab"){event.preventDefault();code.setRangeText("    ",code.selectionStart,code.selectionEnd,"end")}});initialize();
+    document.querySelectorAll(".tab").forEach(button=>button.addEventListener("click",()=>switchView(button.dataset.view)));mapButton.addEventListener("click",analyze);$("file").addEventListener("change",async e=>{const file=e.target.files[0];if(file){code.value=await file.text();$("filename").textContent=file.name;setStatus("File loaded — ready to map","ready")}});$("sample").addEventListener("click",()=>{code.value=SAMPLE_SOURCE;$("filename").textContent="sample.py"});code.addEventListener("keydown",event=>{if((event.ctrlKey||event.metaKey)&&event.key==="Enter")analyze();if(event.key==="Tab"){event.preventDefault();code.setRangeText("    ",code.selectionStart,code.selectionEnd,"end")}});initialize();
   </script>
 </body>
 </html>
