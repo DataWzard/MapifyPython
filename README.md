@@ -8,7 +8,7 @@ MapifyPython visualizes Python structure and possible execution flow without run
 - **Execution tree** for statement order, conditions, loops, exception paths, and deferred function bodies.
 - **Raw JSON** for the complete analysis result.
 
-Both visual views center automatically when opened. Page scrolling does not change graph zoom; use the explicit **Zoom −**, **Zoom +**, and **Center** controls instead. The execution tree initially rolls subprocesses beneath their top-level process: select any `+` node to drill down, select `−` to roll it back up, or use **Roll up** to return to the overview. Either graph can be shown full screen or exported as SVG or high-resolution PNG.
+The node graph centers automatically when opened, while the execution tree starts at a readable close view of the main module with first-level processes extending to its right. Page scrolling does not change graph zoom; use the explicit **Zoom −**, **Zoom +**, and **Center** controls instead. The execution tree initially rolls subprocesses beneath their top-level process: select any `+` node to drill down without changing the current zoom or pan position, select `−` to roll it back up, or use **Roll up** to return to the fitted overview. Either graph can be shown full screen or exported as SVG or high-resolution PNG.
 
 The analyzer runs locally in the visitor's browser through Pyodide. Python source is not uploaded to a server.
 
