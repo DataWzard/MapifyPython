@@ -18,12 +18,10 @@ The public app URL is:
 https://stacksanalytics.us/PyMap/
 ```
 
-The shorter alias `https://stacksanalytics.us/Mapify` redirects to the same app.
-
 The page downloads version-pinned Pyodide and D3 assets from jsDelivr when it loads.
 
 ## Local command-line use
 
 ```bash
-python mapify.py path/to/script.py --out map.json
+python pymap.py path/to/script.py --out map.json
 ```
