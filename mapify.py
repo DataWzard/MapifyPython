@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Mapify (Python) — rebuild of the AST parser to replace/extend MapifyJSON.
+PyMap — a Python AST and execution-flow visualizer inspired by MapifyJSON.
 
 Goals (assumptions, since the original repo context isn't available):
 - Parse a Python module or package into a rich, JSON-serializable map.
@@ -479,7 +479,7 @@ def map_to_json(obj: Union[ModuleMap, Dict[str, Any]], *, indent: int = 2) -> st
 def _cli(argv: List[str]) -> int:
     import argparse
 
-    p = argparse.ArgumentParser(description="Mapify: Python AST -> JSON map")
+    p = argparse.ArgumentParser(description="PyMap: Python AST -> JSON map")
     p.add_argument("path", help="Python file or package directory to map")
     p.add_argument("--out", dest="out", help="Output JSON file (default: print to stdout)")
     p.add_argument("--package", action="store_true", help="Treat path as a package/directory and recurse")

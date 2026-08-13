@@ -1,6 +1,6 @@
-# MapifyPython
+# PyMap
 
-MapifyPython visualizes Python structure and possible execution flow without running the inspected code.
+PyMap visualizes Python structure and possible execution flow without running the inspected code.
 
 ## Public browser app
 
@@ -12,11 +12,13 @@ The node graph centers automatically when opened. The execution flow keeps every
 
 The analyzer runs locally in the visitor's browser through Pyodide. Python source is not uploaded to a server.
 
-The default project URL is:
+The public app URL is:
 
 ```text
-https://datawzard.github.io/MapifyPython/
+https://stacksanalytics.us/PyMap/
 ```
+
+The shorter alias `https://stacksanalytics.us/Mapify` redirects to the same app.
 
 The page downloads version-pinned Pyodide and D3 assets from jsDelivr when it loads.
 
