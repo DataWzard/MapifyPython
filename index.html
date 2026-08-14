@@ -4,9 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Map Python structure and execution flow directly in your browser.">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: blob:; worker-src 'self' blob:; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
   <title>PyMap</title>
-  <script src="https://cdn.jsdelivr.net/pyodide/v314.0.2/full/pyodide.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v314.0.2/full/pyodide.js" integrity="sha384-Y0xVpf8xnYY2wjyRPIe9ZRoE61jRI5ihohgCmZlml2k7pWtPdL7ebjaNml0Esgzg" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
   <style>
     :root{color-scheme:light;--bg:#f3f0e8;--panel:#f8f5ee;--panel2:#101115;--line:#1c1d22;--text:#111217;--muted:#696970;--blue:#61e9dc;--green:#61e9dc;--pink:#f07ac2;--purple:#9468f4;--yellow:#e3a83b;--danger:#d93f5e;--dark:#101115;--dark-text:#f8f5ee}
     *{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}

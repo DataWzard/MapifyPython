@@ -22,6 +22,19 @@ The shorter alias `https://stacksanalytics.us/Mapify` redirects to the same app.
 
 The page downloads version-pinned Pyodide and D3 assets from jsDelivr when it loads.
 
+## Security and privacy
+
+PyMap is a static browser-only application. It has no accounts, backend API, database, analytics, or cookies, and inspected source code remains in the browser. CDN requests still expose ordinary network metadata such as an IP address and user agent to jsDelivr.
+
+Run the local security suite with:
+
+```bash
+python scripts/security_audit.py
+python -m unittest discover -s tests -v
+```
+
+See [SECURITY.md](SECURITY.md) for vulnerability reporting and [PRIVACY.md](PRIVACY.md) for the privacy summary.
+
 ## Local command-line use
 
 ```bash
